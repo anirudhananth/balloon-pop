@@ -7,16 +7,26 @@ using System;
 public class Inflate : MonoBehaviour
 {
     public GameOverScreen gameOverScreen;
-    private float maxTime = 3.75f;
+    // Variable to store the maximum amount of time the player can inflate the balloon
+    private float maxTime = 3.25f;
+    // A timer variable that will store the time the player has been inflating the balloon
     private float timer = 0.0f;
+    // A boolean variable to store if the player has started inflating the balloon
     private bool started = false;
+    // A boolean variable to store if the game is over
     private bool gameOver = false;
+    // A reference to the balloon GameObject
     public GameObject balloon;
+    // A reference to the tornBalloon GameObject
     public GameObject tornBalloon;
+    // A reference to the AudioSource component
     public AudioSource audioSource;
+    // A reference to the inflateSound AudioClip
     public AudioClip inflateSound;
+    // A reference to the popSound AudioClip
     public AudioClip popSound;
     private int score = 0;
+    // A DateTime variable to store the time the player started inflating the balloon
     private DateTime _start;
     // Start is called before the first frame update
     void Start()
@@ -24,31 +34,44 @@ public class Inflate : MonoBehaviour
         _start = DateTime.Now;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
+    void Update() {
+        // If the balloon GameObject exists and the player presses the left mouse button, 
+        // the audioSource is not playing, and the game is not over, then the player has started inflating the balloon
         if(balloon && Input.GetKeyDown(KeyCode.Mouse0) && !audioSource.isPlaying && !gameOver) {
             _start = DateTime.Now;
             audioSource.PlayOneShot(inflateSound);
             started = true;
         }
+    }
+
+    // Update is called once per frame
+    void FixedUpdate()
+    {
         if(balloon && Input.GetKey(KeyCode.Mouse0) && !gameOver) {
             TimeSpan _time = DateTime.Now - _start;
             timer = _time.Seconds + _time.Milliseconds / 1000f;
+            // This timer variable will check if the time since the player has pressed the mouse button
+            // is within the maxTime that we defined (in this case 3.25 seconds).
             if(timer < maxTime) {
-                balloon.transform.localScale += new Vector3(0.0004f, 0.0006f, 0f);
-                balloon.transform.position += new Vector3(0f, 0.0003f, 0f);
+                // This line will increase the XYZ scale (size) of the balloon by the quantity presented on the right
+                // It is only a small increment, but remember that this FixedUpdate() function is called every frame, so it stacks up
+                balloon.transform.localScale += new Vector3(0.02f, 0.025f, 0f);
+                balloon.transform.position += new Vector3(0f, 0.0125f, 0f);
+                // The score is set to be a ratio of the maximum size the balloon can get, converted between 0 and 1000
                 score = (int)(timer / maxTime * 1000);
             } else {
+                // If the player has been inflating the balloon for more than the maxTime, then the balloon will explode
                 Destroy(balloon);
                 Explode();
                 started = false;
                 gameOver = true;
+                // The game over screen is displayed with the Game Over text if the balloon has exploded
                 gameOverScreen.Setup("GAME OVER", 0);
                 // audioSource.Stop();
             }
             // Debug.Log(balloon.transform.localScale);
         } else if(balloon && started) {
+            // This is executed when the player has stopped inflating the balloon BEFORE it has exploded, which will give an actual score.
             gameOver = true;
             audioSource.Stop();
             gameOverScreen.Setup("NICE JOB!", score);
@@ -56,6 +79,7 @@ public class Inflate : MonoBehaviour
     }
 
     void Explode() {
+        // This code plays the pop sound effect, and created 10 torn balloons and throws them in random directions
         audioSource.PlayOneShot(popSound);
         CreateAndThrow(tornBalloon);
         CreateAndThrow(tornBalloon);
@@ -73,10 +97,12 @@ public class Inflate : MonoBehaviour
         float randomX, randomY;
         randomX = UnityEngine.Random.Range(-5f, 5f);
         randomY = UnityEngine.Random.Range(4f, 6f);
+        // For each torn balloon that's created, it's "rigidbody" component will be added with a force in a random direction
         b.transform.GetComponent<Rigidbody2D>().AddForce(new Vector2(randomX, randomY), ForceMode2D.Impulse);
     }
 
     public void RestartGame() {
+        // This function is called EXTERNALLY by the Restart button in the GameOverScreen, not from within this code.
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }
