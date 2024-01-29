@@ -19,11 +19,12 @@ public class Inflate : MonoBehaviour
     public GameObject balloon;
     // A reference to the tornBalloon GameObject
     public GameObject tornBalloon;
-    // A reference to the AudioSource component
+    // A reference to the AudioSource component, in our case the audio source is attached to the hot air balloon itself
+    // What this means is that audio will play from that object. Since this is 2D, it doesn't really mean anything
     public AudioSource audioSource;
-    // A reference to the inflateSound AudioClip
+    // A reference to the inflateSound audio clip
     public AudioClip inflateSound;
-    // A reference to the popSound AudioClip
+    // A reference to the popSound audio clip
     public AudioClip popSound;
     private int score = 0;
     // A DateTime variable to store the time the player started inflating the balloon
@@ -48,6 +49,8 @@ public class Inflate : MonoBehaviour
     void FixedUpdate()
     {
         if(balloon && Input.GetKey(KeyCode.Mouse0) && !gameOver) {
+            // The difference in time stored in the _time variable
+            // _start stores the time when the script starts execution, or the start of the game
             TimeSpan _time = DateTime.Now - _start;
             timer = _time.Seconds + _time.Milliseconds / 1000f;
             // This timer variable will check if the time since the player has pressed the mouse button
@@ -56,6 +59,11 @@ public class Inflate : MonoBehaviour
                 // This line will increase the XYZ scale (size) of the balloon by the quantity presented on the right
                 // It is only a small increment, but remember that this FixedUpdate() function is called every frame, so it stacks up
                 balloon.transform.localScale += new Vector3(0.02f, 0.025f, 0f);
+                // The reason the Y position of the balloon is increased, is because when the size of the balloon is increased,
+                // it will grow bigger and cover up the platform since it grows from the "center" of the balloon.
+                // Since we want the bottom of the balloon to be fixed in the same position, we increase the Y position
+                // of the balloon by HALF of the amount we increase the Y size, so that we get an illusion that
+                // the balloon is stuck to the bottom and growing from it.
                 balloon.transform.position += new Vector3(0f, 0.0125f, 0f);
                 // The score is set to be a ratio of the maximum size the balloon can get, converted between 0 and 1000
                 score = (int)(timer / maxTime * 1000);
@@ -93,6 +101,7 @@ public class Inflate : MonoBehaviour
     }
 
     void CreateAndThrow(GameObject go) {
+        // This will create a torn balloon at the exact same position the "balloon" was, which you can see in the arguments
         GameObject b = Instantiate(go, balloon.transform.position, balloon.transform.rotation);
         float randomX, randomY;
         randomX = UnityEngine.Random.Range(-5f, 5f);
