@@ -12,6 +12,7 @@ public class Inflate : MonoBehaviour
     private float maxTime = 3.25f;
     // A timer variable that will store the time the player has been inflating the balloon
     private float timer = 0.0f;
+    private float delayTimer = 0.0f;
     // A boolean variable to store if the player has started inflating the balloon
     private bool started = false;
     // A boolean variable to store if the game is over
@@ -27,11 +28,13 @@ public class Inflate : MonoBehaviour
     public AudioSource audioSource;
     // A reference to the inflateSound audio clip
     public AudioClip inflateSound;
+    public AudioClip clickSound;
+    public AudioClip fly;
     // A reference to the popSound audio clip
     public AudioClip popSound;
     private int score = 0;
     // A DateTime variable to store the time the player started inflating the balloon
-    private DateTime _start;
+    private DateTime _start, _end;
     // Start is called before the first frame update
     void Start()
     {
@@ -60,7 +63,7 @@ public class Inflate : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        if(balloon && Input.GetKey(KeyCode.Mouse0) && !gameOver) {
+        if(started && balloon && Input.GetKey(KeyCode.Mouse0) && !gameOver) {
             // The difference in time stored in the _time variable
             // _start stores the time when the script starts execution, or the start of the game
             TimeSpan _time = DateTime.Now - _start;
@@ -85,17 +88,33 @@ public class Inflate : MonoBehaviour
                 Explode();
                 started = false;
                 gameOver = true;
+                _end = DateTime.Now;
                 // The game over screen is displayed with the Game Over text if the balloon has exploded
-                gameOverScreen.Setup("GAME OVER", 0);
+                // gameOverScreen.Setup("GAME OVER", 0);
                 // audioSource.Stop();
             }
             // Debug.Log(balloon.transform.localScale);
         } else if(balloon && started) {
             // This is executed when the player has stopped inflating the balloon BEFORE it has exploded, which will give an actual score.
+            started = false;
             gameOver = true;
+            _end = DateTime.Now;
             audioSource.Stop();
-            Fly();
-            gameOverScreen.Setup("NICE JOB!", score);
+            audioSource.PlayOneShot(fly);
+            // gameOverScreen.Setup("NICE JOB!", score);
+        }
+
+        if(gameOver) {
+            if(balloon) Fly();
+            TimeSpan _time = DateTime.Now - _end;
+            delayTimer = _time.Seconds + _time.Milliseconds / 1000f;
+            if(delayTimer > 1.0f) {
+                if(!balloon) {
+                    gameOverScreen.Setup("GAME OVER", 0);
+                } else {
+                    gameOverScreen.Setup("NICE JOB!", score);
+                }
+            }
         }
     }
 
@@ -132,5 +151,9 @@ public class Inflate : MonoBehaviour
     public void RestartGame() {
         // This function is called EXTERNALLY by the Restart button in the GameOverScreen, not from within this code.
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void PlayClickSound() {
+        audioSource.PlayOneShot(clickSound);
     }
 }
