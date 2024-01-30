@@ -6,6 +6,7 @@ using System;
 
 public class Inflate : MonoBehaviour
 {
+    public StartScreen startScreen;
     public GameOverScreen gameOverScreen;
     // Variable to store the maximum amount of time the player can inflate the balloon
     private float maxTime = 3.25f;
@@ -15,6 +16,8 @@ public class Inflate : MonoBehaviour
     private bool started = false;
     // A boolean variable to store if the game is over
     private bool gameOver = false;
+ // A reference to the entire hot air balloon GameObject
+    public GameObject hotAirBalloon;
     // A reference to the balloon GameObject
     public GameObject balloon;
     // A reference to the tornBalloon GameObject
@@ -33,16 +36,25 @@ public class Inflate : MonoBehaviour
     void Start()
     {
         _start = DateTime.Now;
+        // set start screen active
+        startScreen.Setup(); 
     }
 
     void Update() {
-        // If the balloon GameObject exists and the player presses the left mouse button, 
-        // the audioSource is not playing, and the game is not over, then the player has started inflating the balloon
-        if(balloon && Input.GetKeyDown(KeyCode.Mouse0) && !audioSource.isPlaying && !gameOver) {
-            _start = DateTime.Now;
-            audioSource.PlayOneShot(inflateSound);
-            started = true;
+        // check if start screen is inactive
+        if(!startScreen.IsActive()){
+            // If the balloon GameObject exists and the player presses the left mouse button, 
+            // the audioSource is not playing, and the game is not over, then the player has started inflating the balloon
+            if(balloon && Input.GetKeyDown(KeyCode.Mouse0) && !audioSource.isPlaying && !gameOver) {
+
+                _start = DateTime.Now;
+                audioSource.PlayOneShot(inflateSound);
+                started = true;
+
+            }
+            
         }
+        
     }
 
     // Update is called once per frame
@@ -82,8 +94,15 @@ public class Inflate : MonoBehaviour
             // This is executed when the player has stopped inflating the balloon BEFORE it has exploded, which will give an actual score.
             gameOver = true;
             audioSource.Stop();
+            Fly();
             gameOverScreen.Setup("NICE JOB!", score);
         }
+    }
+
+    // Fly animation when balloon successfully blows
+    void Fly(){
+        // simply increased the y axis
+        hotAirBalloon.transform.position += new Vector3(0f, 0.02f, 0f);
     }
 
     void Explode() {
