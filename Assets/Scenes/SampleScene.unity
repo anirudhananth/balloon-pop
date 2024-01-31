@@ -961,6 +961,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scoreText: {fileID: 1662406089}
   endText: {fileID: 250153271}
+  highScoreText: {fileID: 501051179}
 --- !u!82 &397308041 stripped
 AudioSource:
   m_CorrespondingSourceObject: {fileID: 6393540908268431358, guid: a524cc0584f4c4899bfaffa59c38c961, type: 3}

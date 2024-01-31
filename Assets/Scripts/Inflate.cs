@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System;
+using System.Linq;
 
 public class Inflate : MonoBehaviour
 {
@@ -36,11 +37,14 @@ public class Inflate : MonoBehaviour
     // A DateTime variable to store the time the player started inflating the balloon
     private DateTime _start, _end;
     // Start is called before the first frame update
-    void Start()
-    {
+
+    private List<int> highScores = new List<int>();
+    // list of high scores
+    void Start() {
         _start = DateTime.Now;
         // set start screen active
         startScreen.Setup(); 
+        LoadHighScores();
     }
 
     void Update() {
@@ -61,8 +65,7 @@ public class Inflate : MonoBehaviour
     }
 
     // Update is called once per frame
-    void FixedUpdate()
-    {
+    void FixedUpdate() {
         if(started && balloon && Input.GetKey(KeyCode.Mouse0) && !gameOver) {
             // The difference in time stored in the _time variable
             // _start stores the time when the script starts execution, or the start of the game
@@ -91,6 +94,8 @@ public class Inflate : MonoBehaviour
                 _end = DateTime.Now;
                 // The game over screen is displayed with the Game Over text if the balloon has exploded
                 // gameOverScreen.Setup("GAME OVER", 0);
+                UpdateHighScores(score);
+                // The game over screen is displayed with the Game Over text if the balloon has exploded
                 // audioSource.Stop();
             }
             // Debug.Log(balloon.transform.localScale);
@@ -102,6 +107,7 @@ public class Inflate : MonoBehaviour
             audioSource.Stop();
             audioSource.PlayOneShot(fly);
             // gameOverScreen.Setup("NICE JOB!", score);
+            UpdateHighScores(score);
         }
 
         if(gameOver) {
@@ -119,7 +125,7 @@ public class Inflate : MonoBehaviour
     }
 
     // Fly animation when balloon successfully blows
-    void Fly(){
+    void Fly() {
         // simply increased the y axis
         hotAirBalloon.transform.position += new Vector3(0f, 0.02f, 0f);
     }
@@ -155,5 +161,34 @@ public class Inflate : MonoBehaviour
 
     public void PlayClickSound() {
         audioSource.PlayOneShot(clickSound);
+    }
+
+    void UpdateHighScores(int currentScore) {
+        // Check if the current score is not already in the high scores list
+        if (!highScores.Contains(currentScore))
+        {
+            highScores.Add(currentScore);
+            highScores.Sort((a, b) => b.CompareTo(a));
+            highScores = highScores.Take(3).ToList();
+            SaveHighScores();
+        }
+    }
+
+    void LoadHighScores()
+    {
+        highScores.Clear();
+
+        for (int i = 0; i < 3; i++) {
+            int score = PlayerPrefs.GetInt($"HighScore{i}", 0);
+            highScores.Add(score);
+            Debug.Log($"HighScore{i} from PlayerPrefs: {PlayerPrefs.GetInt($"HighScore{i}", 0)}");
+        }
+    }
+
+    void SaveHighScores()
+    {
+        for (int i = 0; i < highScores.Count; i++) {
+            PlayerPrefs.SetInt($"HighScore{i}", highScores[i]);
+        }
     }
 }
