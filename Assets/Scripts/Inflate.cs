@@ -116,9 +116,9 @@ public class Inflate : MonoBehaviour
             delayTimer = _time.Seconds + _time.Milliseconds / 1000f;
             if(delayTimer > 1.0f) {
                 if(!balloon) {
-                    gameOverScreen.Setup("GAME OVER", 0);
+                    gameOverScreen.Setup("GAME OVER", 0, highScores);
                 } else {
-                    gameOverScreen.Setup("NICE JOB!", score);
+                    gameOverScreen.Setup("NICE JOB!", score, highScores);
                 }
             }
         }
