@@ -24,7 +24,7 @@ public class GameOverScreen : MonoBehaviour
             this.highScoreText.text = "HIGH SCORES\n";
 
             // Display high scores as a comma-separated list
-            this.highScoreText.text += string.Join(", ", highScores.Select((value, index) => $"{index + 1}: {value}"));
+            this.highScoreText.text += string.Join("\n", highScores.Select((value, index) => $"{index + 1}: {value}"));
         }
         else
         {
