@@ -45,6 +45,8 @@ public class Inflate : MonoBehaviour
         // set start screen active
         startScreen.Setup(); 
         LoadHighScores();
+        Debug.Log(Camera.main.pixelWidth);
+        Debug.Log(Camera.main.pixelHeight);
     }
 
     void Update() {
@@ -94,7 +96,6 @@ public class Inflate : MonoBehaviour
                 _end = DateTime.Now;
                 // The game over screen is displayed with the Game Over text if the balloon has exploded
                 // gameOverScreen.Setup("GAME OVER", 0);
-                UpdateHighScores(score);
                 // The game over screen is displayed with the Game Over text if the balloon has exploded
                 // audioSource.Stop();
             }
@@ -107,7 +108,6 @@ public class Inflate : MonoBehaviour
             audioSource.Stop();
             audioSource.PlayOneShot(fly);
             // gameOverScreen.Setup("NICE JOB!", score);
-            UpdateHighScores(score);
         }
 
         if(gameOver) {
@@ -118,6 +118,7 @@ public class Inflate : MonoBehaviour
                 if(!balloon) {
                     gameOverScreen.Setup("GAME OVER", 0, highScores);
                 } else {
+                    UpdateHighScores(score);
                     gameOverScreen.Setup("NICE JOB!", score, highScores);
                 }
             }
